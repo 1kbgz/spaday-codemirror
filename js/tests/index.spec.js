@@ -58,6 +58,12 @@ test("registers and renders a CodeMirror editor", async ({ page }) => {
     gutters: 1,
     defaults: ["", "plain", "light", false, true, 4],
   });
+
+  await page.locator("#cm .cm-content").click();
+  await expect(page.locator("#cm")).toHaveCSS(
+    "border-color",
+    "rgb(9, 105, 218)",
+  );
 });
 
 test("applies syntax modes", async ({ page }) => {

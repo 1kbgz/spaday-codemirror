@@ -14,6 +14,11 @@ spaday-codemirror .cm-editor.cm-focused {
   outline: none;
 }
 
+spaday-codemirror:focus-within {
+  border-color: #0969da;
+  box-shadow: 0 0 0 1px #0969da;
+}
+
 spaday-codemirror .cm-scroller {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
