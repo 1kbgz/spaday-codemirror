@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier
+_commit: 855c122
+_src_path: /Users/timkpaine/Developer/projects/templates/base
+add_docs: true
+add_extension: js
+add_wiki: false
+email: dev@1kbgz.com
+github: 1kbgz
+project_description: CodeMirror 6 code editor for spaday
+project_name: spaday-codemirror
+python_version_primary: '3.11'
+team: 1kbgz
