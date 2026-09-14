@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "1.0.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "js/src/ts/index.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "SpadayCodeMirror",
+          "tagName": "spaday-codemirror",
+          "customElement": true,
+          "summary": "CodeMirror 6 code editor.",
+          "attributes": [
+            {
+              "name": "doc",
+              "fieldName": "doc",
+              "type": { "text": "string" },
+              "default": "\"\"",
+              "description": "Editor contents."
+            },
+            {
+              "name": "language",
+              "fieldName": "language",
+              "type": { "text": "\"python\" | \"javascript\" | \"json\" | \"markdown\" | \"plain\"" },
+              "default": "\"plain\"",
+              "description": "Syntax mode."
+            },
+            {
+              "name": "theme",
+              "fieldName": "theme",
+              "type": { "text": "\"light\" | \"dark\"" },
+              "default": "\"light\"",
+              "description": "Color theme."
+            },
+            {
+              "name": "read_only",
+              "fieldName": "read_only",
+              "type": { "text": "boolean" },
+              "default": "false",
+              "description": "Disallow user edits."
+            },
+            {
+              "name": "line_numbers",
+              "fieldName": "line_numbers",
+              "type": { "text": "boolean" },
+              "default": "true",
+              "description": "Show the line-number gutter."
+            },
+            {
+              "name": "tab_size",
+              "fieldName": "tab_size",
+              "type": { "text": "number" },
+              "default": "4",
+              "description": "Tab width and indent unit, in spaces."
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "doc",
+              "type": { "text": "string" },
+              "default": "\"\"",
+              "attribute": "doc"
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": { "text": "\"python\" | \"javascript\" | \"json\" | \"markdown\" | \"plain\"" },
+              "default": "\"plain\"",
+              "attribute": "language"
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": { "text": "\"light\" | \"dark\"" },
+              "default": "\"light\"",
+              "attribute": "theme"
+            },
+            {
+              "kind": "field",
+              "name": "read_only",
+              "type": { "text": "boolean" },
+              "default": "false",
+              "attribute": "read_only"
+            },
+            {
+              "kind": "field",
+              "name": "line_numbers",
+              "type": { "text": "boolean" },
+              "default": "true",
+              "attribute": "line_numbers"
+            },
+            {
+              "kind": "field",
+              "name": "tab_size",
+              "type": { "text": "number" },
+              "default": "4",
+              "attribute": "tab_size"
+            },
+            {
+              "kind": "field",
+              "name": "selection",
+              "type": { "text": "{ anchor: number; head?: number } | null" },
+              "default": "null",
+              "description": "Main selection; head defaults to anchor."
+            }
+          ],
+          "events": [
+            {
+              "name": "editor-change",
+              "type": { "text": "CustomEvent<{ doc: string; changes: { from: number; to: number; insert: string }[]; selection: { anchor: number; head: number } }>" },
+              "description": "User edited the document."
+            },
+            {
+              "name": "editor-selection",
+              "type": { "text": "CustomEvent<{ selection: { anchor: number; head: number } }>" },
+              "description": "User moved the selection without editing."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "spaday-codemirror",
+          "declaration": { "name": "SpadayCodeMirror", "module": "js/src/ts/index.ts" }
+        }
+      ]
+    }
+  ]
+}

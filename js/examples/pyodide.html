@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>spaday-codemirror in Pyodide</title>
+    <link rel="stylesheet" href="./components/codemirror/css/index.css" />
+    <style>
+      #pyodide-status {
+        position: sticky;
+        z-index: 10000;
+        top: 0;
+        box-sizing: border-box;
+        min-height: 3rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #d8e1e5;
+        color: #14364a;
+        background: #fffffff2;
+        font:
+          14px/1.4 system-ui,
+          sans-serif;
+        backdrop-filter: blur(12px);
+      }
+      #pyodide-error {
+        margin: 1rem;
+        color: #b42318;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pyodide-status">Loading Python in the browser…</div>
+    <div id="example-root"></div>
+    <pre id="pyodide-error" hidden></pre>
+    <script type="module">
+      import { connectWorker, init } from "./runtime/spaday/cdn/index.js";
+      import "./components/codemirror/cdn/index.js";
+
+      const status = document.querySelector("#pyodide-status");
+
+      function fail(error) {
+        status.textContent = "Unable to start";
+        const output = document.querySelector("#pyodide-error");
+        output.hidden = false;
+        output.textContent = String(error);
+      }
+
+      try {
+        await init({ module_or_path: "./runtime/spaday/pkg/spaday_bg.wasm" });
+        const worker = new Worker("./pyodide-worker.js", { type: "module" });
+        worker.addEventListener("message", (event) => {
+          if (event.data.type === "status")
+            status.textContent = event.data.message;
+          if (event.data.type === "error") fail(event.data.message);
+          if (event.data.type === "style")
+            document.head.insertAdjacentHTML("beforeend", event.data.content);
+          if (event.data.type === "patch")
+            document.documentElement.dataset.workerPatches = String(
+              Number(document.documentElement.dataset.workerPatches || 0) + 1,
+            );
+        });
+        const link = connectWorker(
+          document.querySelector("#example-root"),
+          worker,
+        );
+        await link.ready;
+        status.textContent = "Ready · Python worker connected";
+        document.documentElement.dataset.ready = "true";
+      } catch (error) {
+        fail(error);
+      }
+    </script>
+  </body>
+</html>

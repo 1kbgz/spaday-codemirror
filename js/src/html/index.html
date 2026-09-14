@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>spaday-codemirror</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <script type="module" src="./cdn/index.js"></script>
+    <style>
+      spaday-codemirror {
+        height: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <spaday-codemirror id="editor" language="python" tab_size="4"></spaday-codemirror>
+    <pre id="events"></pre>
+    <script type="module">
+      const editor = document.getElementById("editor");
+      const events = document.getElementById("events");
+      editor.doc = 'def hello(name):\n    return f"hello {name}"\n';
+      for (const type of ["editor-change", "editor-selection"]) {
+        editor.addEventListener(type, (event) => {
+          events.textContent = `${type} ${JSON.stringify(event.detail)}`;
+        });
+      }
+    </script>
+  </body>
+</html>
