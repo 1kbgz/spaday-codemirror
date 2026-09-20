@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" shape-rendering="geometricPrecision" role="img" aria-label="spaday-codemirror">
+  <title>spaday-codemirror</title>
+  <defs><clipPath id="viewport-clip"><rect x="124" y="243" width="1006" height="854" rx="62"/></clipPath></defs>
+  <rect x="88" y="96" width="1078" height="1036" rx="108" fill="#0C4253"/>
+  <rect x="124" y="243" width="1006" height="854" rx="62" fill="#F2F3EF"/>
+  <circle cx="208" cy="175" r="25" fill="#FC6B47"/><circle cx="295" cy="175" r="25" fill="#AECEC3"/><circle cx="383" cy="175" r="25" fill="#F2F3EF"/>
+  <g clip-path="url(#viewport-clip)">
+    <rect x="188" y="318" width="878" height="714" rx="38" fill="#AECEC3"/>
+    <rect x="188" y="318" width="126" height="714" rx="38" fill="#0C4253"/>
+    <g fill="#F2F3EF"><circle cx="251" cy="422" r="13"/><circle cx="251" cy="522" r="13"/><circle cx="251" cy="622" r="13"/><circle cx="251" cy="722" r="13"/><circle cx="251" cy="822" r="13"/><circle cx="251" cy="922" r="13"/></g>
+    <g fill="none" stroke="#0C4253" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M492 476 408 550l84 74M792 476l84 74-84 74M690 420 586 681"/>
+      <path d="M394 777h248M394 861h402M394 945h310"/>
+    </g>
+    <rect x="824" y="754" width="22" height="214" rx="11" fill="#FC6B47"/>
+  </g>
+</svg>

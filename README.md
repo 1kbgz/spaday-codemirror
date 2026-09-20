@@ -1,4 +1,9 @@
-# spaday-codemirror
+<a href="https://github.com/1kbgz/spaday-codemirror">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/1kbgz/spaday-codemirror/raw/main/docs/img/logo-dark.webp?raw=true">
+    <img alt="spaday-codemirror logo, a code editor inside a browser window" src="https://github.com/1kbgz/spaday-codemirror/raw/main/docs/img/logo-light.webp?raw=true" width="1200">
+  </picture>
+</a>
 
 [CodeMirror 6](https://codemirror.net/) code editor for [spaday](https://github.com/1kbgz/spaday).
 
