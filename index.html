@@ -236,15 +236,19 @@
         <article role="main" id="furo-main-content">
           <div class="toctree-wrapper compound">
 </div>
-<section class="tex2jax_ignore mathjax_ignore" id="spaday-codemirror">
-<h1>spaday-codemirror<a class="headerlink" href="#spaday-codemirror" title="Link to this heading">¶</a></h1>
+<a href="https://github.com/1kbgz/spaday-codemirror">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/1kbgz/spaday-codemirror/raw/main/docs/img/logo-dark.webp?raw=true">
+    <img alt="spaday-codemirror logo, a code editor inside a browser window" src="https://github.com/1kbgz/spaday-codemirror/raw/main/docs/img/logo-light.webp?raw=true" width="1200">
+  </picture>
+</a>
 <p><a class="reference external" href="https://codemirror.net/">CodeMirror 6</a> code editor for <a class="reference external" href="https://github.com/1kbgz/spaday">spaday</a>.</p>
 <p><a class="reference external" href="https://github.com/1kbgz/spaday-codemirror/actions/workflows/build.yaml"><img alt="Build Status" src="https://github.com/1kbgz/spaday-codemirror/actions/workflows/build.yaml/badge.svg?branch=main&amp;event=push" /></a>
 <a class="reference external" href="https://codecov.io/gh/1kbgz/spaday-codemirror"><img alt="codecov" src="https://codecov.io/gh/1kbgz/spaday-codemirror/branch/main/graph/badge.svg" /></a>
 <a class="reference external" href="https://github.com/1kbgz/spaday-codemirror"><img alt="License" src="https://img.shields.io/github/license/1kbgz/spaday-codemirror" /></a>
 <a class="reference external" href="https://pypi.python.org/pypi/spaday-codemirror"><img alt="PyPI" src="https://img.shields.io/pypi/v/spaday-codemirror.svg" /></a></p>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">spaday-codemirror</span></code> provides one custom element, <code class="docutils literal notranslate"><span class="pre">&lt;spaday-codemirror&gt;</span></code>, and its typed spaday binding, <code class="docutils literal notranslate"><span class="pre">CodeMirror</span></code>. The package registers itself as the <code class="docutils literal notranslate"><span class="pre">codemirror</span></code> component package, so pages load its assets with <code class="docutils literal notranslate"><span class="pre">packages=[&quot;codemirror&quot;]</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">spaday.backends.starlette</span><span class="w"> </span><span class="kn">import</span> <span class="n">serve</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spaday_codemirror</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodeMirror</span>
@@ -263,7 +267,7 @@
 </pre></div>
 </div>
 <section id="properties">
-<h3>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h3>
+<h2>Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
 <p>Attributes share the property names.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
@@ -316,7 +320,7 @@
 <p>Setting a property updates the existing <code class="docutils literal notranslate"><span class="pre">EditorView</span></code> in place, so focus and scroll position are kept. Property changes never emit events.</p>
 </section>
 <section id="events">
-<h3>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h3>
+<h2>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h2>
 <p>Both events bubble and are composed.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
@@ -341,7 +345,7 @@
 </section>
 </section>
 <section id="browser-examples">
-<h2>Browser examples<a class="headerlink" href="#browser-examples" title="Link to this heading">¶</a></h2>
+<h1>Browser examples<a class="headerlink" href="#browser-examples" title="Link to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference external" href="https://1kbgz.github.io/spaday-codemirror/lite/">Hosted Pyodide example</a>: the example page running in a Python Web Worker.</p></li>
 <li><p><a class="reference download internal" download="" href="_downloads/53e45d25c6914a2af26d00a0987d501b/example.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/example.py</span></code></span></a>: two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.</p></li>
@@ -349,7 +353,7 @@
 </ul>
 </section>
 <section id="run-the-examples-locally">
-<h2>Run the examples locally<a class="headerlink" href="#run-the-examples-locally" title="Link to this heading">¶</a></h2>
+<h1>Run the examples locally<a class="headerlink" href="#run-the-examples-locally" title="Link to this heading">¶</a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>develop
 make<span class="w"> </span>build
 python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.example<span class="w">  </span><span class="c1"># http://127.0.0.1:8031/</span>
@@ -364,7 +368,6 @@ python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.exampl
 <p class="admonition-title">Note</p>
 <p>This library was generated using <a class="reference external" href="https://copier.readthedocs.io/en/stable/">copier</a> from the <a class="reference external" href="https://github.com/python-project-templates/base">Base Python Project Template repository</a>.</p>
 </div>
-</section>
 </section>
 
         </article>
