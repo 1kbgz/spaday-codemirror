@@ -319,6 +319,66 @@
 </div>
 <p>Setting a property updates the existing <code class="docutils literal notranslate"><span class="pre">EditorView</span></code> in place, so focus and scroll position are kept. Property changes never emit events.</p>
 </section>
+<section id="theming">
+<h2>Theming<a class="headerlink" href="#theming" title="Link to this heading">¶</a></h2>
+<p>Editor chrome follows spaday’s shell palette. Component tokens can be set on the editor or any
+ancestor; <code class="docutils literal notranslate"><span class="pre">spaday_codemirror.TOKENS</span></code> exposes the same names for Python <code class="docutils literal notranslate"><span class="pre">css()</span></code> calls.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Token</p></th>
+<th class="head"><p>Controls</p></th>
+<th class="head"><p>Shell fallback</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-surface</span></code></p></td>
+<td><p>Editor background</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-surface</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-text</span></code></p></td>
+<td><p>Editor and panel text</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-muted</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-gutter-surface</span></code></p></td>
+<td><p>Gutter and panel background</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-surface-2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-gutter-text</span></code></p></td>
+<td><p>Line numbers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-muted</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-border</span></code></p></td>
+<td><p>Editor, gutter, panel borders</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-border</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-focus</span></code></p></td>
+<td><p>Focused editor border</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-accent</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-cursor</span></code></p></td>
+<td><p>Caret and drop cursor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--spa-accent</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-selection</span></code></p></td>
+<td><p>Selection background</p></td>
+<td><p>Theme default</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-active-line</span></code></p></td>
+<td><p>Active-line background</p></td>
+<td><p>Theme default</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--spa-codemirror-active-line-gutter</span></code></p></td>
+<td><p>Active line-number background</p></td>
+<td><p>Theme default</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Syntax colors remain owned by CodeMirror’s light and One Dark themes. For example,
+<code class="docutils literal notranslate"><span class="pre">CodeMirror(...).css(spa_codemirror_surface=&quot;#111&quot;,</span> <span class="pre">spa_codemirror_text=&quot;#ddd&quot;)</span></code> changes one
+editor without changing the rest of the application.</p>
+</section>
 <section id="events">
 <h2>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h2>
 <p>Both events bubble and are composed.</p>
