@@ -10,7 +10,6 @@ PACKAGE_JSON = json.loads((ROOT / "js" / "package.json").read_text(encoding="utf
 
 def test_version_matches_metadata():
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert __version__ == "0.1.0"
     assert pyproject["project"]["version"] == __version__
     assert PACKAGE_JSON["version"] == __version__
 
