@@ -181,6 +181,7 @@ export class SpadayCodeMirror extends HTMLElement {
     const next = THEMES.includes(value) ? value : "light";
     if (next === this._theme) return;
     this._theme = next;
+    this.dataset.theme = next;
     this._reconfigure(this._compartments.theme, this._themeExtension());
   }
 
@@ -245,6 +246,7 @@ export class SpadayCodeMirror extends HTMLElement {
 
   connectedCallback(): void {
     for (const name of PROPERTIES) this._upgradeProperty(name);
+    this.dataset.theme = this._theme;
     if (!this._view) {
       this._view = new EditorView({ state: this._createState(), parent: this });
     }
@@ -343,7 +345,44 @@ export class SpadayCodeMirror extends HTMLElement {
   }
 
   private _themeExtension(): Extension {
-    return this._theme === "dark" ? oneDark : [];
+    const dark = this._theme === "dark";
+    const theme = EditorView.theme(
+      {
+        "&": {
+          color: "var(--_spa-codemirror-text)",
+          backgroundColor: "var(--_spa-codemirror-surface)",
+        },
+        ".cm-content": { caretColor: "var(--_spa-codemirror-cursor)" },
+        ".cm-cursor, .cm-dropCursor": {
+          borderLeftColor: "var(--_spa-codemirror-cursor)",
+        },
+        "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+          { backgroundColor: "var(--_spa-codemirror-selection)" },
+        ".cm-activeLine": {
+          backgroundColor: "var(--_spa-codemirror-active-line)",
+        },
+        ".cm-gutters": {
+          backgroundColor: "var(--_spa-codemirror-gutter-surface)",
+          color: "var(--_spa-codemirror-gutter-text)",
+          borderColor: "var(--_spa-codemirror-border)",
+        },
+        ".cm-activeLineGutter": {
+          backgroundColor: "var(--_spa-codemirror-active-line-gutter)",
+        },
+        ".cm-panels": {
+          backgroundColor: "var(--_spa-codemirror-gutter-surface)",
+          color: "var(--_spa-codemirror-text)",
+        },
+        ".cm-panels-top": {
+          borderBottomColor: "var(--_spa-codemirror-border)",
+        },
+        ".cm-panels-bottom": {
+          borderTopColor: "var(--_spa-codemirror-border)",
+        },
+      },
+      { dark },
+    );
+    return dark ? [oneDark, theme] : theme;
   }
 
   private _readOnlyExtension(): Extension {

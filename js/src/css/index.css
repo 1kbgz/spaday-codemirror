@@ -1,9 +1,66 @@
 spaday-codemirror {
+  --_spa-codemirror-surface: var(
+    --spa-codemirror-surface,
+    var(--spa-surface, #fff)
+  );
+  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-muted, #000));
+  --_spa-codemirror-gutter-surface: var(
+    --spa-codemirror-gutter-surface,
+    var(--spa-surface-2, #f5f5f5)
+  );
+  --_spa-codemirror-gutter-text: var(
+    --spa-codemirror-gutter-text,
+    var(--spa-muted, #6c6c6c)
+  );
+  --_spa-codemirror-border: var(
+    --spa-codemirror-border,
+    var(--spa-border, #d0d7de)
+  );
+  --_spa-codemirror-focus: var(
+    --spa-codemirror-focus,
+    var(--spa-accent, #0969da)
+  );
+  --_spa-codemirror-cursor: var(
+    --spa-codemirror-cursor,
+    var(--spa-accent, #000)
+  );
+  --_spa-codemirror-selection: var(--spa-codemirror-selection, #d7d4f0);
+  --_spa-codemirror-active-line: var(--spa-codemirror-active-line, #cceeff44);
+  --_spa-codemirror-active-line-gutter: var(
+    --spa-codemirror-active-line-gutter,
+    #e2f2ff
+  );
   display: block;
   min-height: 3em;
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--_spa-codemirror-border);
   border-radius: 4px;
   overflow: hidden;
+}
+
+spaday-codemirror[data-theme="dark"] {
+  --_spa-codemirror-surface: var(
+    --spa-codemirror-surface,
+    var(--spa-surface, #282c34)
+  );
+  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-muted, #abb2bf));
+  --_spa-codemirror-gutter-surface: var(
+    --spa-codemirror-gutter-surface,
+    var(--spa-surface-2, #282c34)
+  );
+  --_spa-codemirror-gutter-text: var(
+    --spa-codemirror-gutter-text,
+    var(--spa-muted, #7d8799)
+  );
+  --_spa-codemirror-cursor: var(
+    --spa-codemirror-cursor,
+    var(--spa-accent, #528bff)
+  );
+  --_spa-codemirror-selection: var(--spa-codemirror-selection, #3e4451);
+  --_spa-codemirror-active-line: var(--spa-codemirror-active-line, #6699ff0b);
+  --_spa-codemirror-active-line-gutter: var(
+    --spa-codemirror-active-line-gutter,
+    #2c313a
+  );
 }
 
 spaday-codemirror .cm-editor {
@@ -15,8 +72,8 @@ spaday-codemirror .cm-editor.cm-focused {
 }
 
 spaday-codemirror:focus-within {
-  border-color: #0969da;
-  box-shadow: 0 0 0 1px #0969da;
+  border-color: var(--_spa-codemirror-focus);
+  box-shadow: 0 0 0 1px var(--_spa-codemirror-focus);
 }
 
 spaday-codemirror .cm-scroller {

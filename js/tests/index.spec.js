@@ -66,6 +66,47 @@ test("registers and renders a CodeMirror editor", async ({ page }) => {
   );
 });
 
+test("editor colors follow shell and package tokens", async ({ page }) => {
+  const result = await page.evaluate(() => {
+    const el = document.getElementById("cm");
+    document.body.style.setProperty("--spa-surface", "rgb(1, 2, 3)");
+    document.body.style.setProperty("--spa-border", "rgb(4, 5, 6)");
+    document.body.style.setProperty("--spa-muted", "rgb(7, 8, 9)");
+    document.body.style.setProperty("--spa-accent", "rgb(10, 11, 12)");
+    const editor = el.querySelector(".cm-editor");
+    const fromShell = {
+      surface: getComputedStyle(editor).backgroundColor,
+      text: getComputedStyle(editor).color,
+      border: getComputedStyle(el).borderColor,
+    };
+    el.style.setProperty("--spa-codemirror-surface", "rgb(13, 14, 15)");
+    el.style.setProperty("--spa-codemirror-active-line", "rgb(16, 17, 18)");
+    const fromPackage = {
+      surface: getComputedStyle(editor).backgroundColor,
+      activeLine: getComputedStyle(el.querySelector(".cm-activeLine"))
+        .backgroundColor,
+    };
+    return { fromShell, fromPackage };
+  });
+  expect(result).toEqual({
+    fromShell: {
+      surface: "rgb(1, 2, 3)",
+      text: "rgb(7, 8, 9)",
+      border: "rgb(4, 5, 6)",
+    },
+    fromPackage: {
+      surface: "rgb(13, 14, 15)",
+      activeLine: "rgb(16, 17, 18)",
+    },
+  });
+
+  await page.locator("#cm .cm-content").click();
+  await expect(page.locator("#cm")).toHaveCSS(
+    "border-color",
+    "rgb(10, 11, 12)",
+  );
+});
+
 test("applies syntax modes", async ({ page }) => {
   await page.evaluate(() => {
     const el = document.getElementById("cm");
