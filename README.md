@@ -52,6 +52,28 @@ Attributes share the property names.
 
 Setting a property updates the existing `EditorView` in place, so focus and scroll position are kept. Property changes never emit events.
 
+### Theming
+
+Editor chrome follows spaday's shell palette. Component tokens can be set on the editor or any
+ancestor; `spaday_codemirror.TOKENS` exposes the same names for Python `css()` calls.
+
+| Token                                 | Controls                      | Shell fallback    |
+| ------------------------------------- | ----------------------------- | ----------------- |
+| `--spa-codemirror-surface`            | Editor background             | `--spa-surface`   |
+| `--spa-codemirror-text`               | Editor and panel text         | `--spa-muted`     |
+| `--spa-codemirror-gutter-surface`     | Gutter and panel background   | `--spa-surface-2` |
+| `--spa-codemirror-gutter-text`        | Line numbers                  | `--spa-muted`     |
+| `--spa-codemirror-border`             | Editor, gutter, panel borders | `--spa-border`    |
+| `--spa-codemirror-focus`              | Focused editor border         | `--spa-accent`    |
+| `--spa-codemirror-cursor`             | Caret and drop cursor         | `--spa-accent`    |
+| `--spa-codemirror-selection`          | Selection background          | Theme default     |
+| `--spa-codemirror-active-line`        | Active-line background        | Theme default     |
+| `--spa-codemirror-active-line-gutter` | Active line-number background | Theme default     |
+
+Syntax colors remain owned by CodeMirror's light and One Dark themes. For example,
+`CodeMirror(...).css(spa_codemirror_surface="#111", spa_codemirror_text="#ddd")` changes one
+editor without changing the rest of the application.
+
 ### Events
 
 Both events bubble and are composed.

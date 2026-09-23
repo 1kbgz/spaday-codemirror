@@ -24,4 +24,29 @@ package = ComponentPackage(
 
 CodeMirror = SpadayCodemirror
 
-__all__ = ["ASSETS_DIR", "MANIFEST", "VERSIONS", "CodeMirror", "SpadayCodemirror", "__version__", "package"]
+#: ``css()`` kwarg → (CSS custom property, what it controls), in the shape of
+#: :data:`spaday.theme.SHELL_TOKENS`. Each token keeps CodeMirror's light / One Dark standalone
+#: default and follows the nearest shell token where one applies.
+TOKENS = {
+    "spa_codemirror_surface": ("--spa-codemirror-surface", "editor background (defaults to --spa-surface)"),
+    "spa_codemirror_text": ("--spa-codemirror-text", "editor and panel text (defaults to --spa-muted)"),
+    "spa_codemirror_gutter_surface": ("--spa-codemirror-gutter-surface", "gutter and panel background (defaults to --spa-surface-2)"),
+    "spa_codemirror_gutter_text": ("--spa-codemirror-gutter-text", "line-number color (defaults to --spa-muted)"),
+    "spa_codemirror_border": ("--spa-codemirror-border", "editor, gutter, and panel border (defaults to --spa-border)"),
+    "spa_codemirror_focus": ("--spa-codemirror-focus", "focused editor border (defaults to --spa-accent)"),
+    "spa_codemirror_cursor": ("--spa-codemirror-cursor", "caret and drop-cursor color (defaults to --spa-accent)"),
+    "spa_codemirror_selection": ("--spa-codemirror-selection", "selection background"),
+    "spa_codemirror_active_line": ("--spa-codemirror-active-line", "active-line background"),
+    "spa_codemirror_active_line_gutter": ("--spa-codemirror-active-line-gutter", "active line-number background"),
+}
+
+__all__ = [
+    "ASSETS_DIR",
+    "MANIFEST",
+    "TOKENS",
+    "VERSIONS",
+    "CodeMirror",
+    "SpadayCodemirror",
+    "__version__",
+    "package",
+]

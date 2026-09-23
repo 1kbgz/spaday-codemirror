@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -9,7 +10,7 @@ from spaday import ComponentSchema, validate
 from spaday.cem import generate, schemas
 
 import spaday_codemirror
-from spaday_codemirror import MANIFEST, CodeMirror, SpadayCodemirror, package
+from spaday_codemirror import MANIFEST, TOKENS, CodeMirror, SpadayCodemirror, package
 
 ROOT = Path(__file__).parents[2]
 
@@ -132,8 +133,16 @@ def test_all_exports():
         "ASSETS_DIR",
         "CodeMirror",
         "MANIFEST",
+        "TOKENS",
         "VERSIONS",
         "SpadayCodemirror",
         "__version__",
         "package",
     }
+
+
+def test_tokens_document_exactly_what_the_stylesheet_exposes():
+    css = re.sub(r"\s+", "", (ROOT / "js" / "src" / "css" / "index.css").read_text(encoding="utf-8"))
+    read = set(re.findall(r"var\((--spa-codemirror-[a-z-]+)[,)]", css))
+    assert read == {prop for prop, _ in TOKENS.values()}
+    assert not re.findall(r"(?<![-\w])(--spa-codemirror-[a-z-]+):", css)
