@@ -5,7 +5,7 @@ from spaday import ComponentPackage
 
 from .components import SpadayCodemirror
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 ASSETS_DIR = Path(__file__).parent / "extension"
 MANIFEST = Path(__file__).parent / "components.cem.json"
