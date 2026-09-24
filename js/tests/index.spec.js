@@ -228,6 +228,24 @@ test("programmatic updates keep the view, focus, and scroll without feedback", a
   expect(await events(page)).toEqual([]);
 });
 
+test("programmatic document updates do not enter local undo history", async ({
+  page,
+}) => {
+  await page.evaluate(() => (document.getElementById("cm").doc = "start"));
+  await page.locator("#cm .cm-content").click();
+  await page.keyboard.press("End");
+  await page.keyboard.type(" local");
+  await page.evaluate(
+    () => (document.getElementById("cm").doc = "remote start local"),
+  );
+
+  await page.keyboard.press("ControlOrMeta+z");
+
+  expect(await page.evaluate(() => document.getElementById("cm").doc)).toBe(
+    "remote start",
+  );
+});
+
 test("configures read_only, line_numbers, tab_size, and theme", async ({
   page,
 }) => {

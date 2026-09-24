@@ -3,6 +3,7 @@ import {
   Compartment,
   EditorSelection,
   EditorState,
+  Transaction,
   type Extension,
 } from "@codemirror/state";
 import {
@@ -158,7 +159,7 @@ export class SpadayCodeMirror extends HTMLElement {
         to: current.length - end,
         insert: next.slice(start, next.length - end),
       },
-      annotations: external.of(true),
+      annotations: [external.of(true), Transaction.addToHistory.of(false)],
     });
   }
 
