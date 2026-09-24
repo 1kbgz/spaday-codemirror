@@ -25,7 +25,7 @@ import json
 import micropip
 
 wheels = json.loads(wheels_json)
-await micropip.install([wheels["spaday"], "starlette", "transports==0.8.0"])
+await micropip.install([wheels["spaday"], "starlette", "transports==0.9.0"])
 await micropip.install(wheels["codemirror"], deps=False)
 
 from spaday_codemirror.example import styles, worker_app

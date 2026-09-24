@@ -39,7 +39,7 @@ codemirror = "spaday_codemirror:package"
 [project.optional-dependencies]
 examples = [
     "starlette",
-    "transports>=0.8,<0.9",
+    "transports>=0.9,<0.10",
     "uvicorn",
     "websockets",
 ]
@@ -57,7 +57,7 @@ develop = [
     "pytest-cov",
     "ruff",
     "starlette",
-    "transports>=0.8,<0.9",
+    "transports>=0.9,<0.10",
     "twine",
     "ty",
     "uv",
