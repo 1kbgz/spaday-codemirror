@@ -38,6 +38,12 @@ export default defineConfig({
             reuseExistingServer: !process.env.CI,
             timeout: 120 * 1000,
           },
+          {
+            command: "PYTHONPATH=.. python -m spaday_codemirror.collaboration",
+            url: "http://127.0.0.1:8032",
+            reuseExistingServer: !process.env.CI,
+            timeout: 120 * 1000,
+          },
         ]
       : []),
   ],
