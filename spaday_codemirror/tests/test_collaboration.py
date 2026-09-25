@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 from transports import Client
 
-from spaday_codemirror.collaboration import USERS, SharedDocument, app, collaboration_page, document_id
+from spaday_codemirror.collaboration import HOST, PORT, USERS, SharedDocument, app, collaboration_page, document_id, main
 
 
 def walk(node):
@@ -61,5 +61,18 @@ def test_viewer_write_is_rejected_without_changing_shared_document():
 
 
 def test_unknown_user_is_rejected():
-    with TestClient(app) as browser, pytest.raises(WebSocketDisconnect), browser.websocket_connect("/ws/mallory"):
-        pass
+    with TestClient(app) as browser, pytest.raises(WebSocketDisconnect) as rejected:
+        browser.websocket_connect("/ws/mallory").__enter__()
+    assert rejected.value.code == 1008
+
+
+def test_main_runs_collaboration_server(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "spaday_codemirror.collaboration.uvicorn.run",
+        lambda *args, **kwargs: calls.append((args, kwargs)),
+    )
+
+    main()
+
+    assert calls == [((app,), {"host": HOST, "port": PORT})]
