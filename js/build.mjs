@@ -15,6 +15,11 @@ const BUNDLES = [
     entryPoints: ["src/ts/index.ts"],
     outfile: "dist/cdn/index.js",
   },
+  {
+    entryPoints: ["src/ts/collaboration.ts"],
+    outfile: "dist/cdn/collaboration.js",
+    external: ["./index.js"],
+  },
 ];
 
 async function build() {

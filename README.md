@@ -40,15 +40,16 @@ Without Python, load `cdn/index.js` and `css/index.css` from `spaday_codemirror/
 
 Attributes share the property names.
 
-| Property       | Type                                                                  | Default   | Description                                                                        |
-| -------------- | --------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------- |
-| `doc`          | `string`                                                              | `""`      | Editor contents                                                                    |
-| `language`     | `"python"` \| `"javascript"` \| `"json"` \| `"markdown"` \| `"plain"` | `"plain"` | Syntax mode                                                                        |
-| `theme`        | `"light"` \| `"dark"`                                                 | `"light"` | Color theme (`dark` uses One Dark)                                                 |
-| `read_only`    | `boolean`                                                             | `false`   | Disallow user edits                                                                |
-| `line_numbers` | `boolean`                                                             | `true`    | Show the line-number gutter                                                        |
-| `tab_size`     | `number`                                                              | `4`       | Tab width and indent unit, in spaces                                               |
-| `selection`    | `{anchor: number, head?: number} \| null`                             | `null`    | Main selection; property only. `head` defaults to `anchor`; `null` leaves it as-is |
+| Property         | Type                                                                  | Default   | Description                                                                                      |
+| ---------------- | --------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------ |
+| `doc`            | `string`                                                              | `""`      | Editor contents                                                                                  |
+| `language`       | `"python"` \| `"javascript"` \| `"json"` \| `"markdown"` \| `"plain"` | `"plain"` | Syntax mode                                                                                      |
+| `theme`          | `"light"` \| `"dark"`                                                 | `"light"` | Color theme (`dark` uses One Dark)                                                               |
+| `read_only`      | `boolean`                                                             | `false`   | Disallow user edits                                                                              |
+| `line_numbers`   | `boolean`                                                             | `true`    | Show the line-number gutter                                                                      |
+| `tab_size`       | `number`                                                              | `4`       | Tab width and indent unit, in spaces                                                             |
+| `selection`      | `{anchor: number, head?: number} \| null`                             | `null`    | Main selection; property only. `head` defaults to `anchor`; `null` leaves it as-is               |
+| `remote_cursors` | `{peer, anchor, head?, label?, color?}[]`                             | `[]`      | Remote selections; positions are tracked as the document changes. Labels and colors are optional |
 
 Setting a property updates the existing `EditorView` in place, so focus and scroll position are kept. Property changes never emit events.
 
@@ -83,11 +84,19 @@ Both events bubble and are composed.
 | `editor-change`    | `{doc, changes: [{from, to, insert}], selection: {anchor, head}}` | The user edits the document                  |
 | `editor-selection` | `{selection: {anchor, head}}`                                     | The user moves the selection without editing |
 
+### Cursor awareness
+
+`connectCursorAwareness(editor, client, modelId)` publishes local selections through transports
+awareness, renders remote selections, maps their positions across document changes, and removes them
+when peers disconnect. Its optional `local` and `remote` callbacks attach and present application
+metadata. The collaboration example uses those callbacks for names and colors; the shared cursor state
+only requires a peer ID and selection.
+
 ## Browser examples
 
 - [Hosted Pyodide example](https://1kbgz.github.io/spaday-codemirror/lite/): the example page running in a Python Web Worker.
 - [`spaday_codemirror/example.py`](spaday_codemirror/example.py): two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.
-- [`spaday_codemirror/collaboration.py`](spaday_codemirror/collaboration.py): one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits merge through Spaday and transports. The example uses URL paths as demo identities; production applications should use authenticated websocket identities.
+- [`spaday_codemirror/collaboration.py`](spaday_codemirror/collaboration.py): one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits and ephemeral cursor awareness flow through Spaday and transports. The example assigns names and colors in its browser adapter; production applications should derive identity from authenticated websocket sessions.
 - [`js/examples/`](js/examples/): the Pyodide page and worker.
 
 ## Run the examples locally
