@@ -98,6 +98,7 @@ Both events bubble and are composed.
 
 - [Hosted Pyodide example](https://1kbgz.github.io/spaday-codemirror/lite/): the example page running in a Python Web Worker.
 - [`spaday_codemirror/example.py`](spaday_codemirror/example.py): two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.
+- [`spaday_codemirror/collaboration.py`](spaday_codemirror/collaboration.py): one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits merge through Spaday and transports. The example uses URL paths as demo identities; production applications should use authenticated websocket identities.
 - [`js/examples/`](js/examples/): the Pyodide page and worker.
 
 ## Run the examples locally
@@ -106,6 +107,7 @@ Both events bubble and are composed.
 make develop
 make build
 python -m spaday_codemirror.example  # http://127.0.0.1:8031/
+python -m spaday_codemirror.collaboration  # http://127.0.0.1:8032/
 ```
 
 Build and test the Pyodide example:

@@ -409,6 +409,7 @@ editor without changing the rest of the application.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://1kbgz.github.io/spaday-codemirror/lite/">Hosted Pyodide example</a>: the example page running in a Python Web Worker.</p></li>
 <li><p><a class="reference download internal" download="" href="_downloads/53e45d25c6914a2af26d00a0987d501b/example.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/example.py</span></code></span></a>: two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.</p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/29bc339851d2a6413583975b65ab9d91/collaboration.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/collaboration.py</span></code></span></a>: one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits merge through Spaday and transports. The example uses URL paths as demo identities; production applications should use authenticated websocket identities.</p></li>
 <li><p><a class="reference internal" href="#js/examples/"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">js/examples/</span></code></span></a>: the Pyodide page and worker.</p></li>
 </ul>
 </section>
@@ -417,6 +418,7 @@ editor without changing the rest of the application.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>develop
 make<span class="w"> </span>build
 python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.example<span class="w">  </span><span class="c1"># http://127.0.0.1:8031/</span>
+python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.collaboration<span class="w">  </span><span class="c1"># http://127.0.0.1:8032/</span>
 </pre></div>
 </div>
 <p>Build and test the Pyodide example:</p>
