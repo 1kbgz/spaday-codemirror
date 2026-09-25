@@ -47,6 +47,7 @@ test("registers and renders a CodeMirror editor", async ({ page }) => {
         el.read_only,
         el.line_numbers,
         el.tab_size,
+        el.remote_cursors,
       ],
     };
   });
@@ -56,7 +57,7 @@ test("registers and renders a CodeMirror editor", async ({ page }) => {
     viewDom: true,
     contentEditable: "true",
     gutters: 1,
-    defaults: ["", "plain", "light", false, true, 4],
+    defaults: ["", "plain", "light", false, true, 4, []],
   });
 
   await page.locator("#cm .cm-content").click();
@@ -348,6 +349,174 @@ test("sets and clamps selection", async ({ page }) => {
     afterNull: { anchor: 10, head: 0 },
   });
   expect(await events(page)).toEqual([]);
+});
+
+test("renders and tracks remote cursors without feedback", async ({ page }) => {
+  await page.evaluate(() => {
+    const el = document.getElementById("cm");
+    el.doc = "abcdef";
+    el.remote_cursors = [
+      {
+        peer: "alice",
+        anchor: 1,
+        head: 4,
+        label: "Alice",
+        color: "#b42318",
+      },
+      { peer: "bob", anchor: 5, color: "#175cd3" },
+    ];
+  });
+
+  await expect(
+    page.locator('#cm .cm-remote-selection[data-peer="alice"]'),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('#cm .cm-remote-cursor[data-peer="alice"]'),
+  ).toHaveCount(1);
+  await expect(page.locator("#cm .cm-remote-cursor-label")).toHaveText("Alice");
+  await expect(
+    page.locator('#cm .cm-remote-cursor[data-peer="bob"]'),
+  ).toHaveCount(1);
+
+  const mapped = await page.evaluate(() => {
+    const el = document.getElementById("cm");
+    el.doc = `XX${el.doc}`;
+    return el.remote_cursors;
+  });
+  expect(mapped).toEqual([
+    {
+      peer: "alice",
+      anchor: 3,
+      head: 6,
+      label: "Alice",
+      color: "#b42318",
+    },
+    { peer: "bob", anchor: 7, head: 7, color: "#175cd3" },
+  ]);
+
+  const sanitized = await page.evaluate(() => {
+    const el = document.getElementById("cm");
+    el.remote_cursors = [
+      {
+        peer: "unsafe",
+        anchor: 2,
+        color: "red; background-image: url(https://invalid.example)",
+      },
+    ];
+    return el.remote_cursors;
+  });
+  expect(sanitized).toEqual([{ peer: "unsafe", anchor: 2, head: 2 }]);
+
+  await page.evaluate(() => {
+    document.getElementById("cm").remote_cursors = [
+      { peer: "bob", anchor: 2, color: "#175cd3" },
+    ];
+  });
+  await expect(page.locator('[data-peer="alice"]')).toHaveCount(0);
+  await expect(page.locator('[data-peer="bob"]')).toHaveCount(1);
+  expect(await events(page)).toEqual([]);
+});
+
+test("applies remote cursors assigned before connection", async ({ page }) => {
+  await page.evaluate(() => {
+    const el = document.createElement("spaday-codemirror");
+    el.id = "preconfigured";
+    el.doc = "abcdef";
+    el.remote_cursors = [{ peer: "alice", anchor: 3, label: "Alice" }];
+    document.body.append(el);
+  });
+
+  await expect(
+    page.locator('#preconfigured .cm-remote-cursor[data-peer="alice"]'),
+  ).toHaveCount(1);
+});
+
+test("connects cursor state to generic awareness", async ({ page }) => {
+  const result = await page.evaluate(async () => {
+    const { connectCursorAwareness } = await import("/dist/cdn/index.js");
+    const el = document.getElementById("cm");
+    el.doc = "abcdef";
+    el.selection = { anchor: 2 };
+    const sent = [];
+    const awarenessListeners = new Set();
+    const changeListeners = new Set();
+    const client = {
+      awareness: () =>
+        new Map([["existing", { selection: { anchor: 1 }, name: "Existing" }]]),
+      onAwareness(listener) {
+        awarenessListeners.add(listener);
+        return () => awarenessListeners.delete(listener);
+      },
+      onChange(listener) {
+        changeListeners.add(listener);
+        return () => changeListeners.delete(listener);
+      },
+      setAwareness(id, state) {
+        sent.push({ id, state });
+        return true;
+      },
+    };
+    const binding = connectCursorAwareness(el, client, 7, {
+      local: () => ({ role: "writer" }),
+      remote: (_peer, state) => ({ label: state.name }),
+    });
+    const initial = el.remote_cursors;
+
+    el.view.dispatch({ selection: { anchor: 3 } });
+    for (const listener of awarenessListeners)
+      listener({
+        id: 7,
+        peer: "alice",
+        state: { selection: { anchor: 4, head: 6 }, name: "Alice" },
+      });
+    const received = el.remote_cursors;
+    el.doc = `XX${el.doc}`;
+    for (const listener of awarenessListeners)
+      listener({
+        id: 7,
+        peer: "bob",
+        state: { selection: { anchor: 2 }, name: "Bob" },
+      });
+    const mapped = el.remote_cursors;
+    for (const listener of changeListeners) listener({ id: 7 });
+    binding.disconnect();
+    const publishedAfterDisconnect = binding.publish();
+    for (const listener of awarenessListeners)
+      listener({ id: 7, peer: "late", state: { selection: { anchor: 5 } } });
+
+    return {
+      initial,
+      received,
+      mapped,
+      afterDisconnect: el.remote_cursors,
+      publishedAfterDisconnect,
+      sent,
+      listenerCounts: [awarenessListeners.size, changeListeners.size],
+    };
+  });
+
+  expect(result.initial).toEqual([
+    { peer: "existing", anchor: 1, head: 1, label: "Existing" },
+  ]);
+  expect(result.received).toEqual([
+    { peer: "existing", anchor: 1, head: 1, label: "Existing" },
+    { peer: "alice", anchor: 4, head: 6, label: "Alice" },
+  ]);
+  expect(result.mapped).toEqual([
+    { peer: "existing", anchor: 3, head: 3, label: "Existing" },
+    { peer: "alice", anchor: 6, head: 8, label: "Alice" },
+    { peer: "bob", anchor: 2, head: 2, label: "Bob" },
+  ]);
+  expect(result.afterDisconnect).toEqual([]);
+  expect(result.publishedAfterDisconnect).toBe(false);
+  expect(result.sent).toEqual([
+    { id: 7, state: { role: "writer", selection: { anchor: 2, head: 2 } } },
+    { id: 7, state: { role: "writer", selection: { anchor: 3, head: 3 } } },
+    { id: 7, state: { role: "writer", selection: { anchor: 5, head: 5 } } },
+    { id: 7, state: null },
+  ]);
+  expect(result.listenerCounts).toEqual([0, 0]);
+  expect(await events(page)).toHaveLength(1);
 });
 
 test("destroys the view on disconnect and restores it on reconnect", async ({

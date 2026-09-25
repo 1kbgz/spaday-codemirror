@@ -29,6 +29,7 @@ USERS = {
     "bob": ("Bob", transports.WRITE),
     "viewer": ("Viewer", transports.READ),
 }
+USER_COLORS = {"alice": "#b42318", "bob": "#175cd3", "viewer": "#067647"}
 
 STYLE = """
 body { margin: 0; background: #f4f6f8; color: #14212b; font: 15px/1.5 system-ui, sans-serif; }
@@ -83,13 +84,14 @@ def collaboration_page(user: str):
         theme="light",
         read_only=access == transports.READ,
     ).bind("doc", "doc", mode="two-way", event="editor-change")
+    editor.prop("data-user-name", label).prop("data-user-color", USER_COLORS[user])
     return (
         element("main", id="collaboration-example")
         .child(element("h1").text("Collaborative editing"))
         .child(
             element("p")
             .classes("collaboration-intro")
-            .text("Open Alice and Bob in separate tabs. Their character-level edits merge into the same document.")
+            .text("Open two users in separate tabs. Their edits merge and their live selections appear in the shared editor.")
         )
         .child(element("nav").prop("aria-label", "Users").classes("collaboration-users").child(*links))
         .child(
@@ -121,6 +123,7 @@ def page_spec(user: str) -> PageSpec:
         tree="inline",
         title=f"spaday-codemirror collaboration · {USERS[user][0]}",
         styles=[STYLE],
+        scripts=["/components/codemirror/cdn/collaboration.js"],
     )
 
 

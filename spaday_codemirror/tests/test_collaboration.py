@@ -6,7 +6,7 @@ from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 from transports import Client
 
-from spaday_codemirror.collaboration import HOST, PORT, USERS, SharedDocument, app, collaboration_page, document_id, main
+from spaday_codemirror.collaboration import HOST, PORT, USER_COLORS, USERS, SharedDocument, app, collaboration_page, document_id, main, page_spec
 
 
 def walk(node):
@@ -28,6 +28,14 @@ def test_pages_bind_the_editor_and_match_access():
         editor = by_id(tree, "shared-editor")
         assert editor["bindings"]["doc"] == {"field": "doc", "mode": "two-way", "event": "editor-change"}
         assert editor["props"]["read_only"] == {"Bool": user == "viewer"}
+        assert editor["props"]["data-user-name"] == {"Str": USERS[user][0]}
+        assert editor["props"]["data-user-color"] == {"Str": USER_COLORS[user]}
+
+
+def test_page_loads_cursor_awareness_adapter():
+    assert page_spec("alice").scripts == ["/components/codemirror/cdn/collaboration.js"]
+    with TestClient(app) as browser:
+        assert browser.get("/components/codemirror/cdn/collaboration.js").status_code == 200
 
 
 def test_viewer_write_is_rejected_without_changing_shared_document():

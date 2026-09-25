@@ -104,6 +104,13 @@
               "type": { "text": "{ anchor: number; head?: number } | null" },
               "default": "null",
               "description": "Main selection; head defaults to anchor."
+            },
+            {
+              "kind": "field",
+              "name": "remote_cursors",
+              "type": { "text": "{ peer: string; anchor: number; head?: number; label?: string; color?: string }[]" },
+              "default": "[]",
+              "description": "Remote selections keyed by peer; labels and colors are optional presentation metadata."
             }
           ],
           "events": [
