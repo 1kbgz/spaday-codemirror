@@ -3,16 +3,22 @@ import {
   Compartment,
   EditorSelection,
   EditorState,
+  StateEffect,
+  StateField,
   Transaction,
+  type ChangeDesc,
   type Extension,
 } from "@codemirror/state";
 import {
+  Decoration,
   EditorView,
+  WidgetType,
   drawSelection,
   highlightActiveLine,
   highlightActiveLineGutter,
   keymap,
   lineNumbers,
+  type DecorationSet,
 } from "@codemirror/view";
 import {
   defaultKeymap,
@@ -36,6 +42,37 @@ export type Theme = "light" | "dark";
 export interface Selection {
   anchor: number;
   head?: number;
+}
+export interface RemoteCursor extends Selection {
+  peer: string;
+  label?: string;
+  color?: string;
+}
+export type CursorAwarenessState = Record<string, unknown> & {
+  selection?: Selection;
+};
+export interface CursorAwarenessClient {
+  awareness?(id: number): ReadonlyMap<string, unknown>;
+  onAwareness(
+    listener: (update: {
+      id: number;
+      peer: string;
+      state: unknown | null;
+    }) => void,
+  ): () => void;
+  onChange(listener: (change: { id: number }) => void): () => void;
+  setAwareness(id: number, state: CursorAwarenessState | null): boolean;
+}
+export interface CursorAwarenessOptions {
+  local?: () => Record<string, unknown>;
+  remote?: (
+    peer: string,
+    state: CursorAwarenessState,
+  ) => Pick<RemoteCursor, "label" | "color">;
+}
+export interface CursorAwarenessBinding {
+  publish(): boolean;
+  disconnect(): void;
 }
 export interface Change {
   from: number;
@@ -62,6 +99,127 @@ export const THEMES: readonly Theme[] = ["light", "dark"];
 
 // Marks transactions that originate from property assignment so they don't echo back as events.
 const external = Annotation.define<boolean>();
+const setRemoteCursors = StateEffect.define<RemoteCursor[]>();
+
+function remoteCursor(cursor: RemoteCursor, length: number): RemoteCursor {
+  const { anchor, head } = clampSelection(cursor, length);
+  const color =
+    typeof cursor.color === "string" &&
+    typeof CSS !== "undefined" &&
+    CSS.supports("color", cursor.color)
+      ? cursor.color
+      : undefined;
+  return {
+    peer: String(cursor.peer),
+    anchor,
+    head,
+    ...(typeof cursor.label === "string" ? { label: cursor.label } : {}),
+    ...(color ? { color } : {}),
+  };
+}
+
+class RemoteCursorWidget extends WidgetType {
+  constructor(private readonly cursor: RemoteCursor) {
+    super();
+  }
+
+  eq(other: RemoteCursorWidget): boolean {
+    return (
+      this.cursor.peer === other.cursor.peer &&
+      this.cursor.label === other.cursor.label &&
+      this.cursor.color === other.cursor.color
+    );
+  }
+
+  toDOM(): HTMLElement {
+    const caret = document.createElement("span");
+    caret.className = "cm-remote-cursor";
+    caret.dataset.peer = this.cursor.peer;
+    if (this.cursor.color)
+      caret.style.setProperty("--spa-remote-cursor", this.cursor.color);
+    if (this.cursor.label) {
+      const label = document.createElement("span");
+      label.className = "cm-remote-cursor-label";
+      label.textContent = this.cursor.label;
+      caret.append(label);
+    }
+    return caret;
+  }
+}
+
+function remoteCursorDecorations(
+  cursors: RemoteCursor[],
+  length: number,
+): DecorationSet {
+  const ranges = [];
+  for (const cursor of cursors) {
+    const { anchor, head } = clampSelection(cursor, length);
+    const color = cursor.color
+      ? `--spa-remote-cursor: ${cursor.color}`
+      : undefined;
+    if (anchor !== head)
+      ranges.push(
+        Decoration.mark({
+          class: "cm-remote-selection",
+          attributes: {
+            "data-peer": cursor.peer,
+            ...(color ? { style: color } : {}),
+          },
+        }).range(Math.min(anchor, head), Math.max(anchor, head)),
+      );
+    ranges.push(
+      Decoration.widget({
+        widget: new RemoteCursorWidget(cursor),
+        side: 1,
+      }).range(head),
+    );
+  }
+  return Decoration.set(ranges, true);
+}
+
+type RemoteCursorState = {
+  cursors: RemoteCursor[];
+  decorations: DecorationSet;
+};
+
+function mapRemoteCursors(
+  cursors: RemoteCursor[],
+  changes: ChangeDesc,
+): RemoteCursor[] {
+  return cursors.map((cursor) => ({
+    ...cursor,
+    anchor: changes.mapPos(cursor.anchor),
+    ...(cursor.head === undefined ? {} : { head: changes.mapPos(cursor.head) }),
+  }));
+}
+
+const remoteCursorField = StateField.define<RemoteCursorState>({
+  create: () => ({ cursors: [], decorations: Decoration.none }),
+  update(value, transaction) {
+    for (const effect of transaction.effects)
+      if (effect.is(setRemoteCursors)) {
+        const cursors = [
+          ...new Map(
+            effect.value.map((cursor) => [cursor.peer, cursor]),
+          ).values(),
+        ].map((cursor) => remoteCursor(cursor, transaction.state.doc.length));
+        return {
+          cursors,
+          decorations: remoteCursorDecorations(
+            cursors,
+            transaction.state.doc.length,
+          ),
+        };
+      }
+    const cursors = mapRemoteCursors(value.cursors, transaction.changes);
+    return {
+      cursors,
+      decorations: value.decorations.map(transaction.changes),
+    };
+  },
+  provide: (field) =>
+    EditorView.decorations.from(field, (value) => value.decorations),
+});
 
 const languageExtensions: Record<Language, () => Extension> = {
   python: () => python(),
@@ -79,6 +237,7 @@ const PROPERTIES = [
   "line_numbers",
   "tab_size",
   "selection",
+  "remote_cursors",
 ] as const;
 
 // Attributes share the property names so HTML, the manifest, and the Python binding agree.
@@ -116,6 +275,7 @@ export class SpadayCodeMirror extends HTMLElement {
   private _lineNumbers = true;
   private _tabSize = 4;
   private _selection: Selection | null = null;
+  private _remoteCursors: RemoteCursor[] = [];
   private _view: EditorView | null = null;
   private readonly _compartments = {
     language: new Compartment(),
@@ -245,11 +405,38 @@ export class SpadayCodeMirror extends HTMLElement {
     });
   }
 
+  get remote_cursors(): RemoteCursor[] {
+    const cursors = this._view
+      ? this._view.state.field(remoteCursorField).cursors
+      : this._remoteCursors;
+    return cursors.map((cursor) => ({ ...cursor }));
+  }
+
+  set remote_cursors(value: RemoteCursor[]) {
+    this._remoteCursors = Array.isArray(value)
+      ? value.map((cursor) =>
+          remoteCursor(
+            cursor,
+            this._view?.state.doc.length ?? this._doc.length,
+          ),
+        )
+      : [];
+    this._view?.dispatch({
+      effects: setRemoteCursors.of(this._remoteCursors),
+      annotations: external.of(true),
+    });
+  }
+
   connectedCallback(): void {
     for (const name of PROPERTIES) this._upgradeProperty(name);
     this.dataset.theme = this._theme;
     if (!this._view) {
       this._view = new EditorView({ state: this._createState(), parent: this });
+      if (this._remoteCursors.length)
+        this._view.dispatch({
+          effects: setRemoteCursors.of(this._remoteCursors),
+          annotations: external.of(true),
+        });
     }
   }
 
@@ -258,6 +445,9 @@ export class SpadayCodeMirror extends HTMLElement {
     if (!view) return;
     this._doc = view.state.doc.toString();
     this._selection = this._serializeSelection(view.state);
+    this._remoteCursors = view.state
+      .field(remoteCursorField)
+      .cursors.map((cursor) => ({ ...cursor }));
     view.destroy();
     this._view = null;
   }
@@ -313,6 +503,7 @@ export class SpadayCodeMirror extends HTMLElement {
         highlightActiveLine(),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+        remoteCursorField,
         this._compartments.language.of(this._languageExtension()),
         this._compartments.theme.of(this._themeExtension()),
         this._compartments.readOnly.of(this._readOnlyExtension()),
@@ -356,6 +547,30 @@ export class SpadayCodeMirror extends HTMLElement {
         ".cm-content": { caretColor: "var(--_spa-codemirror-cursor)" },
         ".cm-cursor, .cm-dropCursor": {
           borderLeftColor: "var(--_spa-codemirror-cursor)",
+        },
+        ".cm-remote-selection": {
+          backgroundColor:
+            "color-mix(in srgb, var(--spa-remote-cursor, var(--_spa-codemirror-cursor)) 24%, transparent)",
+        },
+        ".cm-remote-cursor": {
+          borderLeft:
+            "2px solid var(--spa-remote-cursor, var(--_spa-codemirror-cursor))",
+          height: "1.2em",
+          marginLeft: "-1px",
+          pointerEvents: "none",
+          position: "relative",
+        },
+        ".cm-remote-cursor-label": {
+          backgroundColor:
+            "var(--spa-remote-cursor, var(--_spa-codemirror-cursor))",
+          borderRadius: "3px 3px 3px 0",
+          color: "white",
+          font: "11px/1.4 system-ui, sans-serif",
+          left: "-2px",
+          padding: "1px 4px",
+          position: "absolute",
+          top: "-1.5em",
+          whiteSpace: "nowrap",
         },
         "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
           { backgroundColor: "var(--_spa-codemirror-selection)" },
@@ -423,6 +638,83 @@ export class SpadayCodeMirror extends HTMLElement {
       new CustomEvent<T>(type, { detail, bubbles: true, composed: true }),
     );
   }
+}
+
+/** Sync this editor's selection through one model's ephemeral transports awareness. */
+export function connectCursorAwareness(
+  editor: SpadayCodeMirror,
+  client: CursorAwarenessClient,
+  modelId: number,
+  options: CursorAwarenessOptions = {},
+): CursorAwarenessBinding {
+  let active = true;
+  const publish = (): boolean => {
+    if (!active) return false;
+    const selection = editor.selection;
+    return selection
+      ? client.setAwareness(modelId, { ...options.local?.(), selection })
+      : false;
+  };
+  const receive = ({
+    id,
+    peer,
+    state,
+  }: {
+    id: number;
+    peer: string;
+    state: unknown | null;
+  }): void => {
+    if (!active || id !== modelId) return;
+    const remote = new Map(
+      editor.remote_cursors.map((cursor) => [cursor.peer, cursor]),
+    );
+    if (
+      state &&
+      typeof state === "object" &&
+      "selection" in state &&
+      state.selection &&
+      typeof state.selection === "object" &&
+      "anchor" in state.selection &&
+      typeof state.selection.anchor === "number"
+    ) {
+      const awareness = state as CursorAwarenessState;
+      remote.set(peer, {
+        peer,
+        ...awareness.selection!,
+        ...options.remote?.(peer, awareness),
+      });
+    } else {
+      remote.delete(peer);
+    }
+    editor.remote_cursors = [...remote.values()];
+  };
+  const onSelection = (): void => {
+    publish();
+  };
+
+  editor.addEventListener("editor-change", onSelection);
+  editor.addEventListener("editor-selection", onSelection);
+  const stopAwareness = client.onAwareness(receive);
+  const stopChanges = client.onChange(({ id }) => {
+    if (id === modelId) publish();
+  });
+  for (const [peer, state] of client.awareness?.(modelId) ?? [])
+    receive({ id: modelId, peer, state });
+  publish();
+
+  return {
+    publish,
+    disconnect() {
+      if (!active) return;
+      active = false;
+      editor.removeEventListener("editor-change", onSelection);
+      editor.removeEventListener("editor-selection", onSelection);
+      stopAwareness();
+      stopChanges();
+      client.setAwareness(modelId, null);
+      editor.remote_cursors = [];
+    },
+  };
 }
 
 if (!customElements.get("spaday-codemirror")) {
