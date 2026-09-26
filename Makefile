@@ -116,7 +116,7 @@ pyodide-example: build  ## build the standalone Pyodide example into dist/lite
 	test -n "$(firstword $(wildcard dist/spaday_codemirror-*.whl))"
 	rm -rf dist/lite dist/pyodide-deps
 	mkdir -p dist/lite dist/pyodide-deps
-	python -m pip download --no-deps --only-binary=:all: --platform pyemscripten_2026_0_wasm32 --python-version 314 --implementation cp --abi cp314 --dest dist/pyodide-deps "spaday==0.11.0"
+	python -m pip download --no-deps --only-binary=:all: --platform pyemscripten_2026_0_wasm32 --python-version 314 --implementation cp --abi cp314 --dest dist/pyodide-deps "spaday==0.11.1"
 	python js/examples/build_pyodide_example.py dist/lite "$(firstword $(wildcard dist/spaday_codemirror-*.whl))" dist/pyodide-deps
 	cp js/examples/pyodide-worker.js dist/lite/
 test-pyodide-example: pyodide-example  ## run the standalone Pyodide example in Chromium

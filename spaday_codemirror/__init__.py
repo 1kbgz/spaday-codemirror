@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from spaday import ComponentPackage
+from spaday import ComponentPackage, Token
 
 from .components import SpadayCodemirror
 
@@ -24,20 +24,19 @@ package = ComponentPackage(
 
 CodeMirror = SpadayCodemirror
 
-#: ``css()`` kwarg → (CSS custom property, what it controls), in the shape of
-#: :data:`spaday.theme.SHELL_TOKENS`. Each token keeps CodeMirror's light / One Dark standalone
+#: ``css()`` kwarg → (CSS custom property, what it controls). Each token keeps CodeMirror's light / One Dark standalone
 #: default and follows the nearest shell token where one applies.
 TOKENS = {
-    "spa_codemirror_surface": ("--spa-codemirror-surface", "editor background (defaults to --spa-surface)"),
-    "spa_codemirror_text": ("--spa-codemirror-text", "editor and panel text (defaults to --spa-muted)"),
-    "spa_codemirror_gutter_surface": ("--spa-codemirror-gutter-surface", "gutter and panel background (defaults to --spa-surface-2)"),
-    "spa_codemirror_gutter_text": ("--spa-codemirror-gutter-text", "line-number color (defaults to --spa-muted)"),
-    "spa_codemirror_border": ("--spa-codemirror-border", "editor, gutter, and panel border (defaults to --spa-border)"),
-    "spa_codemirror_focus": ("--spa-codemirror-focus", "focused editor border (defaults to --spa-accent)"),
-    "spa_codemirror_cursor": ("--spa-codemirror-cursor", "caret and drop-cursor color (defaults to --spa-accent)"),
-    "spa_codemirror_selection": ("--spa-codemirror-selection", "selection background"),
-    "spa_codemirror_active_line": ("--spa-codemirror-active-line", "active-line background"),
-    "spa_codemirror_active_line_gutter": ("--spa-codemirror-active-line-gutter", "active line-number background"),
+    "spa_codemirror_surface": Token("--spa-codemirror-surface", "editor background", fallback="--spa-surface"),
+    "spa_codemirror_text": Token("--spa-codemirror-text", "editor and panel text", fallback="--spa-muted"),
+    "spa_codemirror_gutter_surface": Token("--spa-codemirror-gutter-surface", "gutter and panel background", fallback="--spa-surface-2"),
+    "spa_codemirror_gutter_text": Token("--spa-codemirror-gutter-text", "line-number color", fallback="--spa-muted"),
+    "spa_codemirror_border": Token("--spa-codemirror-border", "editor, gutter, and panel border", fallback="--spa-border"),
+    "spa_codemirror_focus": Token("--spa-codemirror-focus", "focused editor border", fallback="--spa-accent"),
+    "spa_codemirror_cursor": Token("--spa-codemirror-cursor", "caret and drop-cursor color", fallback="--spa-accent"),
+    "spa_codemirror_selection": Token("--spa-codemirror-selection", "selection background"),
+    "spa_codemirror_active_line": Token("--spa-codemirror-active-line", "active-line background"),
+    "spa_codemirror_active_line_gutter": Token("--spa-codemirror-active-line-gutter", "active line-number background"),
 }
 
 __all__ = [
