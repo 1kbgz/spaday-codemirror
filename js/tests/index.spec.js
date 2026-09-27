@@ -72,7 +72,8 @@ test("editor colors follow shell and package tokens", async ({ page }) => {
     const el = document.getElementById("cm");
     document.body.style.setProperty("--spa-surface", "rgb(1, 2, 3)");
     document.body.style.setProperty("--spa-border", "rgb(4, 5, 6)");
-    document.body.style.setProperty("--spa-muted", "rgb(7, 8, 9)");
+    document.body.style.setProperty("--spa-text", "rgb(7, 8, 9)");
+    document.body.style.setProperty("--spa-muted", "rgb(70, 80, 90)");
     document.body.style.setProperty("--spa-accent", "rgb(10, 11, 12)");
     const editor = el.querySelector(".cm-editor");
     const fromShell = {

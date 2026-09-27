@@ -28,7 +28,7 @@ CodeMirror = SpadayCodemirror
 #: default and follows the nearest shell token where one applies.
 TOKENS = {
     "spa_codemirror_surface": Token("--spa-codemirror-surface", "editor background", fallback="--spa-surface"),
-    "spa_codemirror_text": Token("--spa-codemirror-text", "editor and panel text", fallback="--spa-muted"),
+    "spa_codemirror_text": Token("--spa-codemirror-text", "editor and panel text", fallback="--spa-text"),
     "spa_codemirror_gutter_surface": Token("--spa-codemirror-gutter-surface", "gutter and panel background", fallback="--spa-surface-2"),
     "spa_codemirror_gutter_text": Token("--spa-codemirror-gutter-text", "line-number color", fallback="--spa-muted"),
     "spa_codemirror_border": Token("--spa-codemirror-border", "editor, gutter, and panel border", fallback="--spa-border"),

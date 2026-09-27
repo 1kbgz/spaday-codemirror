@@ -3,7 +3,7 @@ spaday-codemirror {
     --spa-codemirror-surface,
     var(--spa-surface, #fff)
   );
-  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-muted, #000));
+  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-text, #000));
   --_spa-codemirror-gutter-surface: var(
     --spa-codemirror-gutter-surface,
     var(--spa-surface-2, #f5f5f5)
@@ -42,7 +42,7 @@ spaday-codemirror[data-theme="dark"] {
     --spa-codemirror-surface,
     var(--spa-surface, #282c34)
   );
-  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-muted, #abb2bf));
+  --_spa-codemirror-text: var(--spa-codemirror-text, var(--spa-text, #abb2bf));
   --_spa-codemirror-gutter-surface: var(
     --spa-codemirror-gutter-surface,
     var(--spa-surface-2, #282c34)
