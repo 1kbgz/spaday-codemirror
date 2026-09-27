@@ -1,0 +1,2 @@
+import{connectCursorAwareness as a}from"./index.js";var i=()=>document.querySelector("#shared-editor");document.addEventListener("spaday:wire-client",o=>{let n=o.detail;n.namespace===null&&n.link.onModel(t=>{let e=i();e&&a(e,n.client,t,{local:()=>({name:e.dataset.userName,color:e.dataset.userColor}),remote:(l,r)=>({label:typeof r.name=="string"?r.name:void 0,color:typeof r.color=="string"?r.color:void 0})})})});
+//# sourceMappingURL=collaboration.js.map
