@@ -87,6 +87,26 @@ test("two editors converge and the viewer remains read-only", async ({
     .poll(async () => (await doc(bob)) === (await doc(alice)))
     .toBe(true);
 
+  await alice.evaluate(() => {
+    document.getElementById("shared-editor").view.dispatch({
+      selection: { anchor: 2, head: 7 },
+    });
+  });
+  await expect
+    .poll(() =>
+      bob.evaluate(() =>
+        document
+          .getElementById("shared-editor")
+          .remote_cursors.find((cursor) => cursor.label === "Alice"),
+      ),
+    )
+    .toMatchObject({ anchor: 2, head: 7, color: "#b42318" });
+  await expect(
+    bob.locator("#shared-editor .cm-remote-cursor-label", {
+      hasText: "Alice",
+    }),
+  ).toBeVisible();
+
   const viewerErrors = await open(viewer, "viewer");
   await expect
     .poll(async () => (await doc(viewer)) === (await doc(alice)))
@@ -96,10 +116,31 @@ test("two editors converge and the viewer remains read-only", async ({
     "false",
   );
   await expect(viewer.locator("#current-access")).toHaveText("Read only");
+  await expect(
+    viewer.locator("#shared-editor .cm-remote-cursor-label", {
+      hasText: "Alice",
+    }),
+  ).toBeVisible();
+  await viewer.evaluate(() => {
+    document.getElementById("shared-editor").view.dispatch({
+      selection: { anchor: 1, head: 4 },
+    });
+  });
+  await expect
+    .poll(() =>
+      bob.evaluate(() =>
+        document
+          .getElementById("shared-editor")
+          .remote_cursors.find((cursor) => cursor.label === "Viewer"),
+      ),
+    )
+    .toMatchObject({ anchor: 1, head: 4, color: "#067647" });
   expect([...aliceErrors, ...bobErrors, ...viewerErrors]).toEqual([]);
-  await Promise.all([
-    aliceContext.close(),
-    bobContext.close(),
-    viewerContext.close(),
-  ]);
+  await aliceContext.close();
+  await expect(
+    bob.locator("#shared-editor .cm-remote-cursor-label", {
+      hasText: "Alice",
+    }),
+  ).toHaveCount(0);
+  await Promise.all([bobContext.close(), viewerContext.close()]);
 });

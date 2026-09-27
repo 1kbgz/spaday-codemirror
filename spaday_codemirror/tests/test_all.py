@@ -24,6 +24,7 @@ def test_serializes_props_by_property_name():
         line_numbers=False,
         tab_size=2,
         selection={"anchor": 1, "head": 3},
+        remote_cursors=[{"peer": "alice", "anchor": 4}],
         key="editor",
     ).to_node()
     assert node == {
@@ -37,6 +38,7 @@ def test_serializes_props_by_property_name():
             "line_numbers": {"Bool": False},
             "tab_size": {"Int": 2},
             "selection": {"Map": {"anchor": {"Int": 1}, "head": {"Int": 3}}},
+            "remote_cursors": {"List": [{"Map": {"peer": {"Str": "alice"}, "anchor": {"Int": 4}}}]},
         },
     }
 
@@ -50,7 +52,7 @@ def test_public_alias():
 
 
 def test_validates_against_schema():
-    validate(SpadayCodemirror(doc="x", language="json", selection=None))
+    validate(SpadayCodemirror(doc="x", language="json", selection=None, remote_cursors=[]))
     with pytest.raises(Exception, match="unknown prop"):
         validate(SpadayCodemirror(value="x"))
 
@@ -80,7 +82,13 @@ def test_schema():
                 "kind": "json",
                 "type_text": "{ anchor: number; head?: number } | null",
                 "description": "Main selection; head defaults to anchor.",
-            }
+            },
+            {
+                "name": "remote_cursors",
+                "kind": "json",
+                "type_text": "{ peer: string; anchor: number; head?: number; label?: string; color?: string }[]",
+                "description": "Remote selections keyed by peer; labels and colors are optional presentation metadata.",
+            },
         ],
         "events": ["editor-change", "editor-selection"],
         "slots": [],
@@ -124,7 +132,16 @@ def test_manifest_lists_exact_api():
     [declaration] = manifest["modules"][0]["declarations"]
     assert declaration["tagName"] == "spaday-codemirror"
     assert [a["name"] for a in declaration["attributes"]] == ["doc", "language", "theme", "read_only", "line_numbers", "tab_size"]
-    assert [m["name"] for m in declaration["members"]] == ["doc", "language", "theme", "read_only", "line_numbers", "tab_size", "selection"]
+    assert [m["name"] for m in declaration["members"]] == [
+        "doc",
+        "language",
+        "theme",
+        "read_only",
+        "line_numbers",
+        "tab_size",
+        "selection",
+        "remote_cursors",
+    ]
     assert [e["name"] for e in declaration["events"]] == ["editor-change", "editor-selection"]
 
 
