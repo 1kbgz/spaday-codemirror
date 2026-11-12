@@ -103,7 +103,7 @@ def test_manifest_matches_generated_schema():
 def test_generated_binding_is_current(tmp_path):
     out = tmp_path / "components.py"
     generate(str(MANIFEST), str(out))
-    subprocess.run([sys.executable, "-m", "ruff", "format", "--quiet", str(out)], check=True)
+    subprocess.run([sys.executable, "-m", "ruff", "format", "--config", str(ROOT / "pyproject.toml"), "--quiet", str(out)], check=True)
     assert out.read_text(encoding="utf-8") == (ROOT / "spaday_codemirror" / "components.py").read_text(encoding="utf-8")
 
 
