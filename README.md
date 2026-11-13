@@ -98,6 +98,18 @@ property and chooses labels/colors. The editor owns selection decorations and po
 example owns identity presentation. Named awareness scopes allow other components on the same model
 to publish independently.
 
+### Editor and table presence
+
+Install `spaday-codemirror[examples]` and `spaday-regular-table`, then run:
+
+```bash
+python -m spaday_codemirror.shared_table
+```
+
+Open <http://127.0.0.1:8033/> in two browsers and select different users. Editor selections and table
+row clicks use independent awareness scopes on one model and connection. This Python example displays
+remote state as lists without custom overlay JavaScript.
+
 ## Browser examples
 
 - [Hosted Pyodide example](https://1kbgz.github.io/spaday-codemirror/lite/): the example page running in a Python Web Worker.
