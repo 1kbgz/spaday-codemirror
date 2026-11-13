@@ -13,7 +13,8 @@ from contextlib import asynccontextmanager, suppress
 import transports
 import uvicorn
 from pydantic import BaseModel
-from spaday import Wire, element
+from spaday import Awareness, Wire, element
+from spaday.actions import SetField, event_value, obj
 from spaday.backends.starlette import PageSpec, build_site
 from starlette.applications import Starlette
 from starlette.routing import WebSocketRoute
@@ -84,7 +85,8 @@ def collaboration_page(user: str):
         theme="light",
         read_only=access == transports.READ,
     ).bind("doc", "doc", mode="two-way", event="editor-change")
-    editor.prop("data-user-name", label).prop("data-user-color", USER_COLORS[user])
+    publish_cursor = SetField("cursor", obj({"selection": event_value("selection"), "name": label, "color": USER_COLORS[user]}))
+    editor.on("selection-update", publish_cursor)
     return (
         element("main", id="collaboration-example")
         .child(element("h1").text("Collaborative editing"))
@@ -119,7 +121,8 @@ def page_spec(user: str) -> PageSpec:
     return PageSpec(
         collaboration_page(user),
         packages=[package],
-        wire=Wire(f"/ws/{user}", reconnect=True),
+        wire=Wire(f"/ws/{user}", reconnect=True, awareness={"editor": Awareness(local="cursor", peers="remote_cursors")}),
+        store={"cursor": {"selection": {"anchor": 0}, "name": USERS[user][0], "color": USER_COLORS[user]}},
         tree="inline",
         title=f"spaday-codemirror collaboration · {USERS[user][0]}",
         styles=[STYLE],

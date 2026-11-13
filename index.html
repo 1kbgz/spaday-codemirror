@@ -109,6 +109,9 @@
   <li class="fd-toc-item" data-depth="2">
     <a href="#cursor-awareness">Cursor awareness</a>
   </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#editor-and-table-presence">Editor and table presence</a>
+  </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#browser-examples">Browser examples</a>
   </li>
@@ -208,7 +211,7 @@
 </tr>
 </tbody>
 </table>
-<p>Setting a property updates the existing <code class="docutils literal notranslate"><span class="pre">EditorView</span></code> in place, so focus and scroll position are kept. Property changes never emit events.</p>
+<p>Setting a property updates the existing <code class="docutils literal notranslate"><span class="pre">EditorView</span></code> in place, so focus and scroll position are kept. Property changes never emit user-edit events. Selection changes also emit <code class="docutils literal notranslate"><span class="pre">selection-update</span></code>, including selections mapped through remote edits.</p>
 </section>
 <section id="theming">
 <h2>Theming<a class="headerlink" href="#theming" title="Link to this heading">¶</a></h2>
@@ -270,7 +273,7 @@ editor without changing the rest of the application.</p>
 </section>
 <section id="events">
 <h2>Events<a class="headerlink" href="#events" title="Link to this heading">¶</a></h2>
-<p>Both events bubble and are composed.</p>
+<p>All events bubble and are composed.</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Event</p></th>
@@ -287,6 +290,10 @@ editor without changing the rest of the application.</p>
 <td><p><code class="docutils literal notranslate"><span class="pre">{selection:</span> <span class="pre">{anchor,</span> <span class="pre">head}}</span></code></p></td>
 <td><p>The user moves the selection without editing</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">selection-update</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{selection:</span> <span class="pre">{anchor,</span> <span class="pre">head}}</span></code></p></td>
+<td><p>Selection changed through user input, property assignment, or document mapping</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -295,8 +302,23 @@ editor without changing the rest of the application.</p>
 <p><code class="docutils literal notranslate"><span class="pre">connectCursorAwareness(editor,</span> <span class="pre">client,</span> <span class="pre">modelId)</span></code> publishes local selections through transports
 awareness, renders remote selections, maps their positions across document changes, and removes them
 when peers disconnect. Its optional <code class="docutils literal notranslate"><span class="pre">local</span></code> and <code class="docutils literal notranslate"><span class="pre">remote</span></code> callbacks attach and present application
-metadata. The collaboration example uses those callbacks for names and colors; the shared cursor state
-only requires a peer ID and selection.</p>
+metadata. This existing unscoped connector remains supported.</p>
+<p>The collaboration example requires Spaday 0.14.2 and transports 0.12.3 or newer, installed by
+the <code class="docutils literal notranslate"><span class="pre">examples</span></code> extra. It configures <code class="docutils literal notranslate"><span class="pre">Wire.awareness</span></code> in Python and publishes native selection events
+through <code class="docutils literal notranslate"><span class="pre">SetField</span></code> actions. Its small browser adapter maps remote state to the editor’s <code class="docutils literal notranslate"><span class="pre">remote_cursors</span></code>
+property and chooses labels/colors. The editor owns selection decorations and position mapping; the
+example owns identity presentation. Named awareness scopes allow other components on the same model
+to publish independently.</p>
+</section>
+<section id="editor-and-table-presence">
+<h2>Editor and table presence<a class="headerlink" href="#editor-and-table-presence" title="Link to this heading">¶</a></h2>
+<p>Install <code class="docutils literal notranslate"><span class="pre">spaday-codemirror[examples]</span></code> and <code class="docutils literal notranslate"><span class="pre">spaday-regular-table</span></code>, then run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.shared_table
+</pre></div>
+</div>
+<p>Open <a class="reference external" href="http://127.0.0.1:8033/">http://127.0.0.1:8033/</a> in two browsers and select different users. Editor selections and table
+row clicks use independent awareness scopes on one model and connection. This Python example displays
+remote state as lists without custom overlay JavaScript.</p>
 </section>
 </section>
 <section id="browser-examples">
@@ -304,7 +326,7 @@ only requires a peer ID and selection.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://1kbgz.github.io/spaday-codemirror/lite/">Hosted Pyodide example</a>: the example page running in a Python Web Worker.</p></li>
 <li><p><a class="reference download internal" download="" href="_downloads/53e45d25c6914a2af26d00a0987d501b/example.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/example.py</span></code></span></a>: two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.</p></li>
-<li><p><a class="reference download internal" download="" href="_downloads/29bc339851d2a6413583975b65ab9d91/collaboration.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/collaboration.py</span></code></span></a>: one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits and ephemeral cursor awareness flow through Spaday and transports. The example assigns names and colors in its browser adapter; production applications should derive identity from authenticated websocket sessions.</p></li>
+<li><p><a class="reference download internal" download="" href="_downloads/29bc339851d2a6413583975b65ab9d91/collaboration.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">spaday_codemirror/collaboration.py</span></code></span></a>: one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits and ephemeral cursor awareness flow through Spaday and transports. The example assigns names and colors in Python; production applications should derive identity from authenticated websocket sessions.</p></li>
 <li><p><a class="reference internal" href="#js/examples/"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">js/examples/</span></code></span></a>: the Pyodide page and worker.</p></li>
 </ul>
 </section>
@@ -358,6 +380,9 @@ python<span class="w"> </span>-m<span class="w"> </span>spaday_codemirror.collab
   </li>
   <li class="fd-toc-item" data-depth="2">
     <a href="#cursor-awareness">Cursor awareness</a>
+  </li>
+  <li class="fd-toc-item" data-depth="2">
+    <a href="#editor-and-table-presence">Editor and table presence</a>
   </li>
   <li class="fd-toc-item" data-depth="1">
     <a href="#browser-examples">Browser examples</a>
