@@ -575,3 +575,32 @@ test("destroys the view on disconnect and restores it on reconnect", async ({
   expect(event.type).toBe("editor-change");
   expect(event.detail.doc).toBe("abcdefgh");
 });
+
+test("reports mapped and assigned selections without emitting user edits", async ({
+  page,
+}) => {
+  const result = await page.evaluate(() => {
+    const editor = document.getElementById("cm");
+    editor.doc = "abcdef";
+    const updates = [];
+    editor.addEventListener("selection-update", (event) => {
+      updates.push({
+        ...event.detail,
+        bubbles: event.bubbles,
+        composed: event.composed,
+      });
+    });
+    editor.selection = { anchor: 2, head: 4 };
+    editor.doc = "XXabcdef";
+    editor.remote_cursors = [{ peer: "other", anchor: 1 }];
+    editor.selection = { anchor: 4, head: 6 };
+    return { updates, userEvents: window.events };
+  });
+  expect(result).toEqual({
+    updates: [
+      { selection: { anchor: 2, head: 4 }, bubbles: true, composed: true },
+      { selection: { anchor: 4, head: 6 }, bubbles: true, composed: true },
+    ],
+    userEvents: [],
+  });
+});

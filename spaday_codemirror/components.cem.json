@@ -123,6 +123,11 @@
               "name": "editor-selection",
               "type": { "text": "CustomEvent<{ selection: { anchor: number; head: number } }>" },
               "description": "User moved the selection without editing."
+            },
+            {
+              "name": "selection-update",
+              "type": { "text": "CustomEvent<{ selection: { anchor: number; head: number } }>" },
+              "description": "Selection changed through user input, property assignment, or document mapping. Does not signal a document edit."
             }
           ]
         }

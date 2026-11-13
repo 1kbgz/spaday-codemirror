@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from spaday import validate
+from spaday import Awareness, Wire, validate
 from starlette.testclient import TestClient
 from starlette.websockets import WebSocketDisconnect
 from transports import Client
@@ -28,8 +28,12 @@ def test_pages_bind_the_editor_and_match_access():
         editor = by_id(tree, "shared-editor")
         assert editor["bindings"]["doc"] == {"field": "doc", "mode": "two-way", "event": "editor-change"}
         assert editor["props"]["read_only"] == {"Bool": user == "viewer"}
-        assert editor["props"]["data-user-name"] == {"Str": USERS[user][0]}
-        assert editor["props"]["data-user-color"] == {"Str": USER_COLORS[user]}
+        assert "selection-update" in editor["events"]
+        spec = page_spec(user)
+        assert spec.store is not None
+        assert spec.store["cursor"] == {"selection": {"anchor": 0}, "name": USERS[user][0], "color": USER_COLORS[user]}
+        assert isinstance(spec.wire, Wire)
+        assert spec.wire.awareness == {"editor": Awareness(local="cursor", peers="remote_cursors")}
 
 
 def test_page_loads_cursor_awareness_adapter():

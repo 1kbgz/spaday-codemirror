@@ -1,32 +1,30 @@
-import {
-  connectCursorAwareness,
-  type CursorAwarenessClient,
-  type SpadayCodeMirror,
-} from "./index.js";
+import type { SpadayCodeMirror, RemoteCursor } from "./index.js";
 
-const editor = (): SpadayCodeMirror | null =>
-  document.querySelector<SpadayCodeMirror>("#shared-editor");
-
+// The example chooses labels/colors; the editor owns native selection decorations.
 document.addEventListener("spaday:wire-client", (event) => {
-  const detail = (event as CustomEvent).detail as {
-    client: CursorAwarenessClient;
-    link: { onModel(listener: (id: number) => void): () => void };
-    namespace: string | null;
+  const { store, namespace } = (event as CustomEvent).detail;
+  if (namespace !== null) return;
+  const render = () => {
+    const editor = document.querySelector<SpadayCodeMirror>("#shared-editor");
+    if (!editor) return;
+    editor.remote_cursors = (store.get("remote_cursors") ?? []).flatMap(
+      ({ peer, state }: { peer: string; state: any }) =>
+        state?.selection && typeof state.selection.anchor === "number"
+          ? [
+              {
+                peer,
+                anchor: state.selection.anchor,
+                head: state.selection.head,
+                label: state.name,
+                color: state.color,
+              } as RemoteCursor,
+            ]
+          : [],
+    );
   };
-  if (detail.namespace !== null) return;
-
-  detail.link.onModel((id) => {
-    const target = editor();
-    if (!target) return;
-    connectCursorAwareness(target, detail.client, id, {
-      local: () => ({
-        name: target.dataset.userName,
-        color: target.dataset.userColor,
-      }),
-      remote: (_peer, state) => ({
-        label: typeof state.name === "string" ? state.name : undefined,
-        color: typeof state.color === "string" ? state.color : undefined,
-      }),
-    });
+  const stop = store.subscribe("remote_cursors", render);
+  window.addEventListener("pagehide", (event) => {
+    if (!event.persisted) stop();
   });
+  render();
 });
