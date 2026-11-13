@@ -58,6 +58,7 @@ def test_validates_against_schema():
 
 
 def test_schema():
+    assert SpadayCodemirror.schema is not None
     assert SpadayCodemirror.schema.to_dict() == {
         "tag": "spaday-codemirror",
         "class_name": "SpadayCodemirror",

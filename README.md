@@ -92,7 +92,8 @@ awareness, renders remote selections, maps their positions across document chang
 when peers disconnect. Its optional `local` and `remote` callbacks attach and present application
 metadata. This existing unscoped connector remains supported.
 
-The collaboration example configures `Wire.awareness` in Python and publishes native selection events
+The collaboration example requires Spaday 0.14.2 and transports 0.12.3 or newer, installed by
+the `examples` extra. It configures `Wire.awareness` in Python and publishes native selection events
 through `SetField` actions. Its small browser adapter maps remote state to the editor's `remote_cursors`
 property and chooses labels/colors. The editor owns selection decorations and position mapping; the
 example owns identity presentation. Named awareness scopes allow other components on the same model
