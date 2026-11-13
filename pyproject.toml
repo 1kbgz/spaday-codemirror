@@ -38,12 +38,15 @@ codemirror = "spaday_codemirror:package"
 
 [project.optional-dependencies]
 examples = [
+    "spaday>=0.14.2,<1.0",
     "starlette",
-    "transports>=0.10,<0.13",
+    "transports>=0.12.3,<0.13",
     "uvicorn",
     "websockets",
 ]
 develop = [
+    "spaday>=0.14.2,<1.0",
+    "spaday-regular-table>=0.3.0",  # combined awareness example tests
     "build",
     "bump-my-version",
     "check-dist",
@@ -57,7 +60,7 @@ develop = [
     "pytest-cov",
     "ruff",
     "starlette",
-    "transports>=0.10,<0.13",
+    "transports>=0.12.3,<0.13",
     "twine",
     "ty",
     "uv",

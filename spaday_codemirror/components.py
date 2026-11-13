@@ -49,7 +49,7 @@ class SpadayCodemirror(Component):
                 description="Remote selections keyed by peer; labels and colors are optional presentation metadata.",
             ),
         ),
-        events=("editor-change", "editor-selection"),
+        events=("editor-change", "editor-selection", "selection-update"),
         slots=(),
     )
 

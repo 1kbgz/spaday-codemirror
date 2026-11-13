@@ -107,7 +107,25 @@ test("two editors converge and the viewer remains read-only", async ({
     }),
   ).toBeVisible();
 
+  // A remote insertion maps Alice's selection; a late subscriber must see those offsets.
+  await insertAt(bob, 0, "prefix ");
+  await expect
+    .poll(() =>
+      alice.evaluate(() => document.getElementById("shared-editor").selection),
+    )
+    .toEqual({ anchor: 9, head: 14 });
+
   const viewerErrors = await open(viewer, "viewer");
+  await expect
+    .poll(() =>
+      viewer.evaluate(() =>
+        document
+          .getElementById("shared-editor")
+          .remote_cursors.find((cursor) => cursor.label === "Alice"),
+      ),
+    )
+    .toMatchObject({ anchor: 9, head: 14 });
+
   await expect
     .poll(async () => (await doc(viewer)) === (await doc(alice)))
     .toBe(true);

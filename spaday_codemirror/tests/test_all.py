@@ -58,6 +58,7 @@ def test_validates_against_schema():
 
 
 def test_schema():
+    assert SpadayCodemirror.schema is not None
     assert SpadayCodemirror.schema.to_dict() == {
         "tag": "spaday-codemirror",
         "class_name": "SpadayCodemirror",
@@ -90,7 +91,7 @@ def test_schema():
                 "description": "Remote selections keyed by peer; labels and colors are optional presentation metadata.",
             },
         ],
-        "events": ["editor-change", "editor-selection"],
+        "events": ["editor-change", "editor-selection", "selection-update"],
         "slots": [],
     }
 
@@ -142,7 +143,7 @@ def test_manifest_lists_exact_api():
         "selection",
         "remote_cursors",
     ]
-    assert [e["name"] for e in declaration["events"]] == ["editor-change", "editor-selection"]
+    assert [e["name"] for e in declaration["events"]] == ["editor-change", "editor-selection", "selection-update"]
 
 
 def test_all_exports():

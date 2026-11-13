@@ -51,7 +51,7 @@ Attributes share the property names.
 | `selection`      | `{anchor: number, head?: number} \| null`                             | `null`    | Main selection; property only. `head` defaults to `anchor`; `null` leaves it as-is               |
 | `remote_cursors` | `{peer, anchor, head?, label?, color?}[]`                             | `[]`      | Remote selections; positions are tracked as the document changes. Labels and colors are optional |
 
-Setting a property updates the existing `EditorView` in place, so focus and scroll position are kept. Property changes never emit events.
+Setting a property updates the existing `EditorView` in place, so focus and scroll position are kept. Property changes never emit user-edit events. Selection changes also emit `selection-update`, including selections mapped through remote edits.
 
 ### Theming
 
@@ -77,26 +77,45 @@ editor without changing the rest of the application.
 
 ### Events
 
-Both events bubble and are composed.
+All events bubble and are composed.
 
-| Event              | `detail`                                                          | Fired when                                   |
-| ------------------ | ----------------------------------------------------------------- | -------------------------------------------- |
-| `editor-change`    | `{doc, changes: [{from, to, insert}], selection: {anchor, head}}` | The user edits the document                  |
-| `editor-selection` | `{selection: {anchor, head}}`                                     | The user moves the selection without editing |
+| Event              | `detail`                                                          | Fired when                                                                     |
+| ------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `editor-change`    | `{doc, changes: [{from, to, insert}], selection: {anchor, head}}` | The user edits the document                                                    |
+| `editor-selection` | `{selection: {anchor, head}}`                                     | The user moves the selection without editing                                   |
+| `selection-update` | `{selection: {anchor, head}}`                                     | Selection changed through user input, property assignment, or document mapping |
 
 ### Cursor awareness
 
 `connectCursorAwareness(editor, client, modelId)` publishes local selections through transports
 awareness, renders remote selections, maps their positions across document changes, and removes them
 when peers disconnect. Its optional `local` and `remote` callbacks attach and present application
-metadata. The collaboration example uses those callbacks for names and colors; the shared cursor state
-only requires a peer ID and selection.
+metadata. This existing unscoped connector remains supported.
+
+The collaboration example requires Spaday 0.14.2 and transports 0.12.3 or newer, installed by
+the `examples` extra. It configures `Wire.awareness` in Python and publishes native selection events
+through `SetField` actions. Its small browser adapter maps remote state to the editor's `remote_cursors`
+property and chooses labels/colors. The editor owns selection decorations and position mapping; the
+example owns identity presentation. Named awareness scopes allow other components on the same model
+to publish independently.
+
+### Editor and table presence
+
+Install `spaday-codemirror[examples]` and `spaday-regular-table`, then run:
+
+```bash
+python -m spaday_codemirror.shared_table
+```
+
+Open <http://127.0.0.1:8033/> in two browsers and select different users. Editor selections and table
+row clicks use independent awareness scopes on one model and connection. This Python example displays
+remote state as lists without custom overlay JavaScript.
 
 ## Browser examples
 
 - [Hosted Pyodide example](https://1kbgz.github.io/spaday-codemirror/lite/): the example page running in a Python Web Worker.
 - [`spaday_codemirror/example.py`](spaday_codemirror/example.py): two editors wired to a transports-hosted model, plus a gallery covering every language and representative settings. Python computes metrics and a normalized preview on each edit, and has Normalize and Reset actions.
-- [`spaday_codemirror/collaboration.py`](spaday_codemirror/collaboration.py): one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits and ephemeral cursor awareness flow through Spaday and transports. The example assigns names and colors in its browser adapter; production applications should derive identity from authenticated websocket sessions.
+- [`spaday_codemirror/collaboration.py`](spaday_codemirror/collaboration.py): one CRDT-backed document shared by Alice and Bob, with a read-only Viewer. Open two user links in separate tabs to see character-level edits and ephemeral cursor awareness flow through Spaday and transports. The example assigns names and colors in Python; production applications should derive identity from authenticated websocket sessions.
 - [`js/examples/`](js/examples/): the Pyodide page and worker.
 
 ## Run the examples locally

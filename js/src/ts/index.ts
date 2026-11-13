@@ -510,9 +510,11 @@ export class SpadayCodeMirror extends HTMLElement {
         this._compartments.lineNumbers.of(this._lineNumbersExtension()),
         this._compartments.tabSize.of(this._tabSizeExtension()),
         EditorView.updateListener.of((update) => {
-          if (update.transactions.some((tr) => tr.annotation(external))) return;
+          const authored = !update.transactions.some((tr) =>
+            tr.annotation(external),
+          );
           const selection = this._serializeSelection(update.state);
-          if (update.docChanged) {
+          if (authored && update.docChanged) {
             const changes: Change[] = [];
             update.changes.iterChanges((from, to, _fromB, _toB, inserted) => {
               changes.push({ from, to, insert: inserted.toString() });
@@ -522,8 +524,13 @@ export class SpadayCodeMirror extends HTMLElement {
               changes,
               selection,
             });
-          } else if (update.selectionSet) {
+          } else if (authored && update.selectionSet) {
             this._emit<EditorSelectionDetail>("editor-selection", {
+              selection,
+            });
+          }
+          if (!update.startState.selection.eq(update.state.selection)) {
+            this._emit<EditorSelectionDetail>("selection-update", {
               selection,
             });
           }
